@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "Cleaning export directory"
+rm -rf "/var/www/html/bioz"
+mkdir "/var/www/html/bioz"
+echo "Copying files"
+cp ./app.js "/var/www/html/bioz"
+cp ./index.css "/var/www/html/bioz"
+cp ./index.html "/var/www/html/bioz"
+cp ./proto.js "/var/www/html/bioz"
+cp -r ./build "/var/www/html/bioz"
+cp -r ./libraries "/var/www/html/bioz"
+echo "Done"

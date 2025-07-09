@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "Cleaning export directory"
+rm -rf "../releases/software/app_bioz"
+mkdir "../releases/software/app_bioz"
+echo "Copying files"
+cp ./app.js "../releases/software/app_bioz"
+cp ./index.css "../releases/software/app_bioz"
+cp ./index.html "../releases/software/app_bioz"
+cp ./proto.js "../releases/software/app_bioz"
+cp -r ./build "../releases/software/app_bioz"
+cp -r ./libraries "../releases/software/app_bioz"
+echo "Done"
