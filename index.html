@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="libraries/material-icons/icon.css">  <!-- Bluetooth icon -->
+    <link rel="stylesheet" href="libraries/material-components-web/material-components-web.min.css">
+    <script src="libraries/material-components-web/material-components-web.min.js"></script> <!-- Nice buttons and so -->
+    <script src="libraries/hammerjs-2.0.8/hammer.min.js"></script>
+    <script src="libraries/chart/chart.umd.js"></script> <!-- Nice graphes -->
+    <script src="libraries/chart/chartjs-plugin-zoom.min.js"></script>
+    <script src="libraries/jsxgraph-1.3.2/jsxgraphcore.js"></script> <!-- Circle estimator -->
+    <script src="libraries/google-protobuf/google-protobuf.min.js"></script>  <!-- Protocol buffer -->
+    <title>INL - Thermal Stimulation</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body class="mdc-typography">
+    <div class="mdc-layout-grid">
+
+        <div class="mdc-layout-grid__inner">
+
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4 mdc-layout-grid__cell--align-bottom">
+                <div class="mdc-card card-internals">
+                    <div class="card-content">
+                        <div id="device-title-id" class="mdc-typography mdc-typography--headline6">Device</div>
+                        <hr>
+                    </div>
+                    <div class="card-content" style="text-align: center;">
+                        <button class="app-ble-status-icon mdc-icon-button material-icons"
+                            style="height: 100px; width: 80px; font-size: 60px;" disabled>bluetooth</button>
+                            <span class="mdc-button__ripple"></span>
+                        <button class="app-bat-status-icon mdc-icon-button material-icons"
+                            style="height: 100px; width: 80px; font-size: 60px;" disabled>battery_0_bar</button>
+                    </div>
+                    <div class="mdc-card__actions">
+                        <button onclick="onConnectBLEButtonClick()"
+                            class="app-ble-connect-button mdc-button mdc-button--raised mdc-card__action mdc-card__action--button">
+                            <span class="mdc-button__ripple"></span>
+                            <span class="app-ble-connect-button-label mdc-button__label">Connect BLE</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-8">
+                <div id='configuration-card-element' class="mdc-card card-internals">
+                    <div class="card-content">
+
+                        <div class="mdc-typography mdc-typography--headline6">Configuration</div>
+                        <hr>
+                        <div>
+
+                            <div style="margin-bottom: 8px;" class="mdc-typography">
+                                <div class="mdc-typography">
+                                    Command
+                                </div>
+                                <div class="app-command-type-select mdc-select mdc-select--filled profile-class-narrow">
+                                    <div class="mdc-select__anchor" role="button" aria-haspopup="listbox" aria-expanded="false"
+                                        aria-labelledby="command-type-label command-type--selected-text">
+                                        <span class="mdc-select__ripple"></span>
+                                        <span id="command-type--label" class="mdc-floating-label">Command Type</span>
+                                        <span class="mdc-select__selected-text-container">
+                                            <span id="command-type--selected-text" class="mdc-select__selected-text"></span>
+                                        </span>
+                                        <span class="mdc-select__dropdown-icon">
+                                            <svg class="mdc-select__dropdown-icon-graphic" viewBox="7 10 10 5"
+                                                focusable="false">
+                                                <polygon class="mdc-select__dropdown-icon-inactive" stroke="none"
+                                                    fill-rule="evenodd" points="7 10 12 15 17 10">
+                                                </polygon>
+                                                <polygon class="mdc-select__dropdown-icon-active" stroke="none"
+                                                    fill-rule="evenodd" points="7 15 12 10 17 15">
+                                                </polygon>
+                                            </svg>
+                                        </span>
+                                        <span class="mdc-line-ripple"></span>
+                                    </div>
+        
+                                    <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth">
+                                        <ul class="mdc-list" role="listbox" aria-label="Command type selector">
+                                            <li class="mdc-list-item mdc-list-item--selected" aria-selected="true" data-value="heat"
+                                                role="option">
+                                                <span class="mdc-list-item__ripple"></span>
+                                                <span class="mdc-list-item__text">
+                                                    HEAT
+                                                </span>
+                                            </li>
+                                            <li class="mdc-list-item" aria-selected="false" data-value="temp" role="option">
+                                                <span class="mdc-list-item__ripple"></span>
+                                                <span class="mdc-list-item__text">
+                                                    TEMPERATURE
+                                                </span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- HEAT Configuration Card -->
+                            <div id="heat-config-card" class="config-card">
+                                <div style="margin-bottom: 8px;" class="mdc-typography">
+                                    <div class="mdc-typography">
+                                        TED Parameters
+                                    </div>
+
+                                    <label class="app-ted-am-field mdc-text-field mdc-text-field--filled profile-class-narrow">
+                                        <span class="mdc-text-field__ripple"></span>
+                                        <span class="mdc-floating-label" id="ted-am">Am</span>
+                                        <input required step="0.001" type="number" class="mdc-text-field__input" type="text" aria-labelledby="ted-am">
+                                        <span class="mdc-line-ripple"></span>
+                                    </label>
+
+                                    <label class="app-ted-rm-field mdc-text-field mdc-text-field--filled profile-class-narrow">
+                                        <span class="mdc-text-field__ripple"></span>
+                                        <span class="mdc-floating-label" id="ted-rm">Rm</span>
+                                        <input required step="0.001" type="number" class="mdc-text-field__input" type="text" aria-labelledby="ted-rm">
+                                        <span class="mdc-line-ripple"></span>
+                                    </label>
+
+                                    <label class="app-ted-tm-field mdc-text-field mdc-text-field--filled profile-class-narrow">
+                                        <span class="mdc-text-field__ripple"></span>
+                                        <span class="mdc-floating-label" id="ted-tm">Tm</span>
+                                        <input required step="0.001" type="number" class="mdc-text-field__input" type="text" aria-labelledby="ted-tm">
+                                        <span class="mdc-line-ripple"></span>
+                                    </label>
+
+                                    <div class="app-ted-preselection-select mdc-select mdc-select--filled profile-class-narrow">
+                                        <div class="mdc-select__anchor" role="button" aria-haspopup="listbox" aria-expanded="false"
+                                            aria-labelledby="command-type-label command-type--selected-text">
+                                            <span class="mdc-select__ripple"></span>
+                                            <span id="command-type--label" class="mdc-floating-label">TED pre-selection</span>
+                                            <span class="mdc-select__selected-text-container">
+                                                <span id="command-type--selected-text" class="mdc-select__selected-text"></span>
+                                            </span>
+                                            <span class="mdc-select__dropdown-icon">
+                                                <svg class="mdc-select__dropdown-icon-graphic" viewBox="7 10 10 5"
+                                                    focusable="false">
+                                                    <polygon class="mdc-select__dropdown-icon-inactive" stroke="none"
+                                                        fill-rule="evenodd" points="7 10 12 15 17 10">
+                                                    </polygon>
+                                                    <polygon class="mdc-select__dropdown-icon-active" stroke="none"
+                                                        fill-rule="evenodd" points="7 15 12 10 17 15">
+                                                    </polygon>
+                                                </svg>
+                                            </span>
+                                            <span class="mdc-line-ripple"></span>
+                                        </div>
+            
+                                        <div class="mdc-select__menu mdc-menu mdc-menu-surface mdc-menu-surface--fullwidth">
+                                            <ul class="mdc-list" role="listbox" aria-label="Command type selector">
+                                                <li class="mdc-list-item mdc-list-item--selected" aria-selected="true" data-value="ted-1"
+                                                    role="option">
+                                                    <span class="mdc-list-item__ripple"></span>
+                                                    <span class="mdc-list-item__text">
+                                                        ET-071-08-15-RS
+                                                    </span>
+                                                </li>
+                                                <li class="mdc-list-item" aria-selected="false" data-value="ted-2" role="option">
+                                                    <span class="mdc-list-item__ripple"></span>
+                                                    <span class="mdc-list-item__text">
+                                                        TED 2
+                                                    </span>
+                                                </li>
+                                                <li class="mdc-list-item" aria-selected="false" data-value="ted-3" role="option">
+                                                    <span class="mdc-list-item__ripple"></span>
+                                                    <span class="mdc-list-item__text">
+                                                        TED 3
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- TEMPERATURE Configuration Card -->
+                            <div id="temp-config-card" class="config-card" style="display: none;">
+                                <div class="mdc-typography">
+                                    <div class="mdc-typography">
+                                        PID Parameters
+                                    </div>
+                                    <label class="app-pid-kp-field mdc-text-field mdc-text-field--filled profile-class-narrow">
+                                        <span class="mdc-text-field__ripple"></span>
+                                        <span class="mdc-floating-label" id="pid-kp">Kp</span>
+                                        <input required step="0.01" type="number" class="mdc-text-field__input" type="text" aria-labelledby="pid-kp">
+                                        <span class="mdc-line-ripple"></span>
+                                    </label>
+        
+                                    <label class="app-pid-ki-field mdc-text-field mdc-text-field--filled profile-class-narrow">
+                                        <span class="mdc-text-field__ripple"></span>
+                                        <span class="mdc-floating-label" id="pid-ki">Ki</span>
+                                        <input required step="0.01" type="number" class="mdc-text-field__input" type="text" aria-labelledby="pid-ki">
+                                        <span class="mdc-line-ripple"></span>
+                                    </label>
+        
+                                    <label class="app-pid-kd-field mdc-text-field mdc-text-field--filled profile-class-narrow">
+                                        <span class="mdc-text-field__ripple"></span>
+                                        <span class="mdc-floating-label" id="pid-jkd">Kd</span>
+                                        <input required step="0.01" type="number" class="mdc-text-field__input" type="text" aria-labelledby="pid-kd">
+                                        <span class="mdc-line-ripple"></span>
+                                    </label>
+        
+                                    <label class="app-pid-dt-field mdc-text-field mdc-text-field--filled profile-class-narrow">
+                                        <span class="mdc-text-field__ripple"></span>
+                                        <span class="mdc-floating-label" id="pid-dt">dT</span>
+                                        <input required step="0.01" type="number" class="mdc-text-field__input" type="text" aria-labelledby="pid-dt">
+                                        <span class="mdc-line-ripple"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mdc-card__actions">
+                        <button onclick="onOnConfigButtonClick()"
+                            class="app-on-config-button mdc-button mdc-button--raised mdc-card__action mdc-card__action--button" enabled>
+                            <span class="mdc-button__ripple"></span>
+                            <span class="mdc-button__label">ON</span>
+                        </button>
+                        <button onclick="onOffConfigButtonClick()"
+                            class="app-off-config-button mdc-button mdc-button--raised mdc-card__action mdc-card__action--button" disabled>
+                            <span class="mdc-button__ripple"></span>
+                            <span class="mdc-button__label">OFF</span>
+                        </button>
+                        <button onclick="onSetConfigButtonClick()"
+                            class="app-set-config-button mdc-button mdc-card__action mdc-card__action--button" enabled>
+                            <span class="mdc-button__ripple"></span>
+                            <span class="mdc-button__label">Set Configuration</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mdc-layout-grid__cell">
+                <div class="mdc-card card-internals-chart" style="padding-bottom: 32px;">
+                    <div class="card-content">
+                        <div id="device-title-id" class="mdc-typography mdc-typography--headline6">Command Value</div>
+                        <hr>
+                    </div>
+                    <div style="margin: 8px;" class="mdc-typography">
+                        <div id="command-value-label" class="mdc-typography">
+                            Heat flux (W/m²)
+                        </div>
+                        <label class="app-command-value-field mdc-text-field mdc-text-field--filled profile-class-narrow">
+                            <span class="mdc-text-field__ripple"></span>
+                            <span class="mdc-floating-label" id="command-value">Command Value</span>
+                            <input id="app-command-value-input" required step="0.1" type="number" class="mdc-text-field__input" type="text" aria-labelledby="command-value">
+                            <span class="mdc-line-ripple"></span>
+                        </label>
+                        
+                        <button onclick="onCommandValueButtonClick()"
+                            class="app-command-value-button mdc-button mdc-button--raised mdc-card__action mdc-card__action--button">
+                            <span class="mdc-button__ripple"></span>
+                            <span class="app-command-value-button-label mdc-button__label">Send</span>
+                        </button>
+                    </div>
+                    <div class="card-content">
+                        <div id="device-title-id" class="mdc-typography mdc-typography--headline6">Command Intensity</div>
+                        <hr>
+                    </div>
+                    <div class="switch-row">
+                        <div class="mdc-form-field">
+                            <label class="level-label mdc-typography mdc-typography--headline6">Very Hot</label>
+                            <div class="mdc-radio level-radio">
+                                <input class="mdc-radio__native-control" type="radio" name="radios" value="0">
+                                <div class="mdc-radio__background">
+                                    <div class="mdc-radio__outer-circle"></div>
+                                    <div class="mdc-radio__inner-circle"></div>
+                                </div>
+                                <div class="mdc-radio__ripple"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="switch-row">
+                        <div class="mdc-form-field">
+                            <label class="level-label mdc-typography mdc-typography--headline6">Hot</label>
+                            <div class="mdc-radio level-radio">
+                                <input class="mdc-radio__native-control" type="radio" name="radios" value="1">
+                                <div class="mdc-radio__background">
+                                    <div class="mdc-radio__outer-circle"></div>
+                                    <div class="mdc-radio__inner-circle"></div>
+                                </div>
+                                <div class="mdc-radio__ripple"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="switch-row">
+                        <div class="mdc-form-field">
+                            <label class="level-label mdc-typography mdc-typography--headline6">Neutral</label>
+                            <div class="mdc-radio level-radio">
+                                <input id="level-radio-defaut-element" class="mdc-radio__native-control" type="radio" name="radios" value="2" checked>
+                                <div class="mdc-radio__background">
+                                    <div class="mdc-radio__outer-circle"></div>
+                                    <div class="mdc-radio__inner-circle"></div>
+                                </div>
+                                <div class="mdc-radio__ripple"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="switch-row">
+                        <div class="mdc-form-field">
+                            <label class="level-label mdc-typography mdc-typography--headline6">Cold</label>
+                            <div class="mdc-radio level-radio">
+                                <input class="mdc-radio__native-control" type="radio" name="radios" value="3">
+                                <div class="mdc-radio__background">
+                                    <div class="mdc-radio__outer-circle"></div>
+                                    <div class="mdc-radio__inner-circle"></div>
+                                </div>
+                                <div class="mdc-radio__ripple"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="switch-row">
+                        <div class="mdc-form-field">
+                            <label class="level-label mdc-typography mdc-typography--headline6">Very Cold</label>
+                            <div class="mdc-radio level-radio">
+                                <input class="mdc-radio__native-control" type="radio" name="radios" value="4">
+                                <div class="mdc-radio__background">
+                                    <div class="mdc-radio__outer-circle"></div>
+                                    <div class="mdc-radio__inner-circle"></div>
+                                </div>
+                                <div class="mdc-radio__ripple"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mdc-layout-grid__cell" style="display: flex; flex-direction: column;">
+  		<div class="mdc-card card-internals-chart" style="display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0;">
+    
+    			<!-- HEADER / TITRE -->
+    			<div class="card-content" style="flex: 0 0 auto;">
+      				<div id="device-title-id" class="mdc-typography mdc-typography--headline6">Measures</div>
+      				<hr>
+    			</div>
+
+   			<!-- ZONE CENTRALE OCCUPANT L'ESPACE DISPONIBLE -->
+    			<div class="measures-container" style="
+    			  flex: 1 1 auto;
+    			  display: flex;
+    			  justify-content: center;
+    			  align-items: center;
+    			  padding: 20px;
+    			  min-height: 0;
+    			">
+      			 <div style="
+     			   display: flex;
+     			   flex-direction: column;
+     			   justify-content: space-around;
+     			   width: 100%;
+     			   height: 80%;
+      			   font-size: 1.2em;
+    		         ">
+        		   <div style="display: flex; justify-content: space-between; padding: 10px;">
+        			  <span>Temperature In</span>
+        			  <strong id="tin-element">--.- °C</strong>
+        		   </div>
+        	           <div style="display: flex; justify-content: space-between; padding: 10px;">
+       			          <span>Temperature Out</span>
+       			          <strong id="tout-element">--.- °C</strong>
+      			   </div>
+     			 </div>
+    			</div>
+
+ 	    </div>
+	</div>
+
+	    <div class="mdc-layout-grid__cell">
+    		<div class="mdc-card card-internals-chart">
+        	     <!-- Container pour le graphique Heat Flux -->
+        	     <div id="heat-chart-container">
+            		 <div class="card-content">
+                	     <div class="mdc-typography mdc-typography--headline6">Heat Flux</div>
+            		 </div>
+            		 <div class="chart-content">
+                  	     <canvas id="app-heat-chart-canvas" class="chart-canvas-large"></canvas>
+            		 </div>
+        	     </div>
+        
+        	     <!-- Container pour le graphique Temperature -->
+        	     <div id="temp-chart-container">
+            		<div class="card-content">
+                	    <div class="mdc-typography mdc-typography--headline6">Temperature</div>
+            		</div>
+            		<div class="chart-content">
+                	    <canvas id="app-temp-chart-canvas" class="chart-canvas-large"></canvas>
+            		</div>
+        	     </div>
+    		</div>
+	     </div>
+
+        </div>
+    </div>
+    
+    <div>
+        <img style="height: 40px; vertical-align: middle; margin-bottom: 3px;" src="build/icon.png">
+        <span>&copy; 2024 INL - INSA Lyon</span>
+    </div>
+
+    <script>
+        // Needed to use node-cobs
+        let Buffer = Uint8Array;
+        let require = () => { };
+        let module = {};
+    </script>
+    <script src="libraries/node-cobs/index.js"></script>
+    <script src="proto.js"></script>
+    <script type="application/javascript" src="app.js"></script>
+
+    <script>
+        // JavaScript to handle toggling between HEAT and TEMPERATURE modes
+        document.addEventListener('DOMContentLoaded', function() {
+    	const commandTypeSelect = document.querySelector('.app-command-type-select');
+    	const heatConfigCard = document.getElementById('heat-config-card');
+    	const tempConfigCard = document.getElementById('temp-config-card');
+    	const commandValueLabel = document.getElementById('command-value-label');
+    	const heatChartContainer = document.getElementById('heat-chart-container');
+    	const tempChartContainer = document.getElementById('temp-chart-container');
+    
+    	// Initialize Material Components
+    	mdc.select.MDCSelect.attachTo(commandTypeSelect);
+    
+    	// Function to toggle between HEAT and TEMPERATURE modes
+    	function toggleConfigMode(mode) {
+            if(mode === 'heat') {
+            	heatConfigCard.style.display = 'block';
+            	tempConfigCard.style.display = 'none';
+            	commandValueLabel.textContent = 'Heat flux (W/m²)';
+            	heatChartContainer.style.display = 'block';
+            	tempChartContainer.style.display = 'none';
+            } else if(mode === 'temp') {
+            	heatConfigCard.style.display = 'none';
+            	tempConfigCard.style.display = 'block';
+            	commandValueLabel.textContent = 'Temperature (°C)';
+            	heatChartContainer.style.display = 'none';
+            	tempChartContainer.style.display = 'block';
+            }
+    	}
+    
+    	// Add event listener for the command type select
+    	commandTypeSelect.addEventListener('MDCSelect:change', function(e) {
+        	toggleConfigMode(e.detail.value);
+    	});
+    
+    	// Set initial state (HEAT mode by default)
+    	toggleConfigMode('heat');
+	});
+    </script>
+</body>
+
+</html>

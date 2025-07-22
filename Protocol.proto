@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+enum EnslavementType {
+  HEAT = 0;
+  TEMP = 1;
+}
+
+enum CommandIntensity {
+  VERY_HOT = 0;
+  HOT = 1;
+  NEUTRAL = 2;
+  COLD = 3;
+  VERY_COLD = 4;
+}
+
+message Command {
+    oneof command_instruction {
+        CommandIntensity commandIntensity = 1;
+        float commandValue = 2;
+    }
+    bool enabled = 3;
+}
+
+message TEDParameters {
+    float am = 1; 
+    float rm = 2; 
+    float tm = 3; 
+}
+
+message PIDParameters {
+    float kp = 1;
+    float ki = 2;
+    float kd = 3;
+    float dt = 4; /* Expressed in seconds */
+}
+
+message MeasurementsResults {
+    int32 temp = 1; /* Expressed in tenths of °C */
+    int32 heat = 2; /* Expressed in tenths of W */
+    int32 setValueTemp = 3; /* Expressed in tenths of °C */
+    int32 setValueHeat = 4; /* Expressed i4n tenths of W */
+    int32 tempIn = 5; /* Expressed in tenths of °C */
+    int32 tempOut = 6; /* Expressed in tenths of °C */
+    int32 tempRefAmb = 7; /* Expressed in tenths of °C */
+    int32 tempRefSkin = 8; /* Expressed in tenths of °C */
+}
+
+message MeasureParametersList {
+    EnslavementType enslavementType = 1;
+    TEDParameters tedParameters = 2;
+    PIDParameters pidParameters = 3;
+}
+
+message SetMeasureParametersList {
+    MeasureParametersList measureParametersList = 1;
+}
+
+message GetMeasureParametersList {}
+
+message Ack {}
+
+/********************************
+***** PROTOCOL MANAGEMENT *******
+********************************/
+
+message Request {
+    oneof type {
+        SetMeasureParametersList setMeasureParametersList = 1;
+        GetMeasureParametersList getMeasureParametersList = 2;
+        Command command = 3;
+    }
+}
+
+message Response {
+    oneof type {
+        Ack ack = 1; // answer on accepted request with measures_parameters
+        MeasureParametersList measureParametersList = 2;
+    }
+}
+
+message Stream {
+    oneof data {
+        MeasurementsResults measurementsResults = 1;
+    }
+}
+
+/********************************
+** UNIQUE PROTOCOL MESSAGE
+*********************************/
+
+message Protocol {
+    oneof type {
+        Request  request  = 1;
+        Response response = 2;
+        Stream   stream   = 3;
+    }
+}

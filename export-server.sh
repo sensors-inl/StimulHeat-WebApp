@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "Cleaning export directory"
+rm -rf "/var/www/html/stimulheat"
+mkdir "/var/www/html/stimulheat"
+echo "Copying files"
+cp ./app.js "/var/www/html/stimulheat"
+cp ./index.css "/var/www/html/stimulheat"
+cp ./index.html "/var/www/html/stimulheat"
+cp ./proto.js "/var/www/html/stimulheat"
+cp -r ./build "/var/www/html/stimulheat"
+cp -r ./libraries "/var/www/html/stimulheat"
+echo "Done"
