@@ -6,10 +6,6 @@ const isCompatible = (/chrome|edg|opera/i.test(userAgent)) && !isSafari;
 if (!isCompatible) {
   alert("Applications require Chrome, Edge or Opera web browsers");
 }
-const isMobile = /android|webos|iphone|ipad|ipod|blackBerry|iemobile|opera mini|mobile|crios/i.test(userAgent);
-if (isMobile) {
-    alert("USB is not available on mobile browsers");
-}
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
